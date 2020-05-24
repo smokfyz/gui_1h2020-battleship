@@ -23,6 +23,7 @@ MainWindow::MainWindow( QWidget* parent ):
     connect(controller, SIGNAL(gameResult(GameResult)), this, SLOT(showGameResult(GameResult)));
     connect(controller, SIGNAL(gameError(GameErrorMessage)), this, SLOT(showGameError(GameErrorMessage)));
     connect(controller, SIGNAL(gameOpponent(QString)), this, SLOT(changeGameOpponent(QString)));
+
     this->redraw();
 }
 

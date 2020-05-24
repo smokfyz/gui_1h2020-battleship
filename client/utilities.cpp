@@ -27,15 +27,3 @@ QPoint getEnemyFieldCoord(const QPoint &position)
     result.setY(static_cast<int>(1.0 * (position.y() - ENEMYFIELD_Y) / (0.1 * FIELD_HEIGHT)));
     return result;
 }
-
-void playHitSound()
-{
-    QSound audio(":/sounds/hit.mp3");
-    audio.play();
-}
-
-void playMissSound()
-{
-    QSound audio(":/sounds/miss.mp3");
-    audio.play();
-}
