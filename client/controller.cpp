@@ -15,10 +15,33 @@ Controller::Controller(Model* model, LogDataModel *log):
     connect(client, SIGNAL(readyRead()), this, SLOT(onDataReceived()));
     connect(client, SIGNAL(connected()), this, SLOT(onConnected()));
     connect(client, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(onError(QAbstractSocket::SocketError)));
+
+    player = new QMediaPlayer(this);
+    playlist = new QMediaPlaylist(this);
+    player->setPlaylist(playlist);
+    player->setVolume(50);
 }
 
 Controller::~Controller()
 {
+}
+
+void Controller::playHitSound()
+{
+    playlist->clear();
+    QUrl url = QUrl("qrc:/sounds/hit.mp3");
+    playlist->addMedia(url);
+    player->setPlaylist(playlist);
+    player->play();
+}
+
+void Controller::playMissSound()
+{
+    playlist->clear();
+    QUrl url = QUrl("qrc:/sounds/miss.mp3");
+    playlist->addMedia(url);
+    player->setPlaylist(playlist);
+    player->play();
 }
 
 void Controller::onMousePressed(const QPoint& position, bool setShip)
@@ -188,11 +211,11 @@ bool Controller::parseFields(const QString& data)
 
         if (type == "half" || type == "kill")
         {
-            playHitSound();
+            this->playHitSound();
         }
         else
         {
-            playMissSound();
+            this->playMissSound();
         }
         stepType = type;
         markShip(xpos, ypos, cell, field == 2);
