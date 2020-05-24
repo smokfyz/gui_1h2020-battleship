@@ -17,6 +17,8 @@ MainWindow::MainWindow( QWidget* parent ):
     gameLogModel = new LogDataModel(this);
     controller = new Controller(model, gameLogModel);
 
+    ui->gameLog->setModel(gameLogModel);
+
     connect(controller, SIGNAL(stateChanged()), this, SLOT(redraw()));
     connect(controller, SIGNAL(gameResult(GameResult)), this, SLOT(showGameResult(GameResult)));
     connect(controller, SIGNAL(gameError(GameErrorMessage)), this, SLOT(showGameError(GameErrorMessage)));

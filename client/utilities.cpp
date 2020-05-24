@@ -30,16 +30,12 @@ QPoint getEnemyFieldCoord(const QPoint &position)
 
 void playHitSound()
 {
-    QMediaPlayer player;
-    player.setMedia(QUrl(":/sounds/hit.wav"));
-    player.setVolume(75);
-    player.play();
+    QSound audio(":/sounds/hit.mp3");
+    audio.play();
 }
 
 void playMissSound()
 {
-    QMediaPlayer player;
-    player.setMedia(QUrl(":/sounds/miss.wav"));
-    player.setVolume(75);
-    player.play();
+    QSound audio(":/sounds/miss.mp3");
+    audio.play();
 }

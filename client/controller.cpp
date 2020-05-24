@@ -1,7 +1,7 @@
 #include <QAbstractSocket>
 #include "controller.h"
 
-const QString DEFAULT_HOST_ADDRESS = "193.169.33.254";
+const QString DEFAULT_HOST_ADDRESS = "92.38.130.21";
 const quint16 DEFAULT_SERVER_PORT = 1234;
 const quint16 DEFAULT_SERVER_TIMEOUT = 5000;
 
@@ -30,7 +30,6 @@ void Controller::onMousePressed(const QPoint& position, bool setShip)
         {
             return;
         }
-        qDebug() << "Ship at" << point.x() << point.y();
         model->setMyCell(point.x(), point.y(), setShip ? CL_SHIP : CL_CLEAR);
         emit stateChanged();
         return;
@@ -42,7 +41,6 @@ void Controller::onMousePressed(const QPoint& position, bool setShip)
         {
             return;
         }
-        qDebug() << "Going to" << point.x() << point.y();
         Cell cell = model->getEnemyCell(point.x(), point.y());
         if (cell != CL_CLEAR)
         {
@@ -178,13 +176,14 @@ bool Controller::parseWrongField(const QString& data)
 bool Controller::parseFields(const QString& data)
 {
     QRegExp rx("field(\\d):(\\w+):(\\d):(\\d):");
-    int pos = 0;
+    QString stepType = "";
+    int pos = 0, field = -1, xpos = -1, ypos = -1;
     while ((pos = rx.indexIn(data, pos)) != -1)
     {
-        const QString& type = rx.cap(2);
-        int field = rx.cap(1).toInt();
-        int xpos = rx.cap(3).toInt();
-        int ypos = rx.cap(4).toInt();
+        const QString &type = rx.cap(2);
+        field = rx.cap(1).toInt();
+        xpos = rx.cap(3).toInt();
+        ypos = rx.cap(4).toInt();
         Cell cell = type == "half" ? CL_HALF : (type == "kill" ? CL_SHIP : CL_DOT);
 
         if (type == "half" || type == "kill")
@@ -195,10 +194,11 @@ bool Controller::parseFields(const QString& data)
         {
             playMissSound();
         }
+        stepType = type;
         markShip(xpos, ypos, cell, field == 2);
-        logGameStep(xpos, ypos, type, field == 2);
         pos += rx.matchedLength();
     }
+    logGameStep(xpos, ypos, stepType, field != 2);
     return pos;
 }
 
@@ -233,6 +233,10 @@ void Controller::markShip(int x, int y, Cell cell, bool atEnemyField)
 
 void Controller::logGameStep(int x, int y, const QString& type, bool enemyStep)
 {
+    if (x == -1 || y == -1)
+    {
+        return;
+    }
     char logX = static_cast<char>(x + 'A');
     int logY = y + 1;
     QString playerString = (enemyStep) ? "Ход противника: " : "Ваш ход: ";
@@ -254,7 +258,7 @@ bool Controller::parseGameResult(const QString& data)
     QRegExp rx("win:"), rx2("lose:");
     if (rx.indexIn(data) != -1)
     {
-        gameLog->addMessageToLog(QTime::currentTime().toString("hh:mm:ss") + ": Вы победили! Поздравляем!");
+        gameLog->addMessageToLog(QTime::currentTime().toString("hh:mm:ss") + ": Вы победили!!! Поздравляем!");
         emit gameResult(GR_WON);
         model->setState(ST_PLACING_SHIPS);
         model->clearMyField();
@@ -264,7 +268,7 @@ bool Controller::parseGameResult(const QString& data)
     else if (rx2.indexIn(data) != -1)
     {
         gameLog->addMessageToLog(QTime::currentTime().toString("hh:mm:ss") +
-                                 ": Вы проиграли! Но возможно Вам повезёт в следующий раз...");
+                                 ": Вы проиграли!!! Как жаль!");
         emit gameResult(GR_LOST);
         model->setState(ST_PLACING_SHIPS);
         model->clearMyField();
@@ -295,9 +299,7 @@ void Controller::onGameStart()
         }
         return;
     }
-    gameLog->addMessageToLog(QTime::currentTime().toString("hh:mm:ss") + ": Подключение к серверу " +
-                             qPrintable(serverAddress.toString()) + ":" + QString::number(serverPort) +
-                             " под логином " + qPrintable(model->getLogin()) + "...");
+    gameLog->addMessageToLog(QTime::currentTime().toString("hh:mm:ss") + ": Подключение к серверу...");
 }
 
 void Controller::onGameQuit()

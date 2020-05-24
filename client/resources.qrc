@@ -6,7 +6,7 @@
         <file>pictures/full.png</file>
         <file>pictures/dot.png</file>
         <file>pictures/background.png</file>
-        <file>sounds/miss.wav</file>
-        <file>sounds/hit.wav</file>
+        <file>sounds/miss.mp3</file>
+        <file>sounds/hit.mp3</file>
     </qresource>
 </RCC>

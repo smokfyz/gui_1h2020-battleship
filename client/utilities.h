@@ -1,7 +1,9 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-#include <QMediaPlayer>
+#include <QSound>
+#include <QUrl>
+#include <QResource>
 #include <QPoint>
 #include <QDebug>
 #include "definitions.h"
