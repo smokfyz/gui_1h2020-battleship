@@ -166,7 +166,7 @@ void Server::timerEvent( QTimerEvent* event )
     Q_UNUSED( event );
     ClientsIterator freeClient = clients_.end();
 
-    for( ClientsIterator cit = clients_.begin(); cit != clients_.end(); cit++ )
+    for( ClientsIterator cit = clients_.begin(); cit != clients_.end(); )
     {
         // Remove disconnected clients from list
         if( cit->status == Client::ST_DISCONNECTED )
@@ -175,7 +175,6 @@ void Server::timerEvent( QTimerEvent* event )
                 freeClient = clients_.end();
 
             cit = clients_.erase( cit );
-            cit--;
             continue;
         }
 
@@ -186,11 +185,15 @@ void Server::timerEvent( QTimerEvent* event )
         if( cit->lastSeen() >= DEFAULT_INACTIVE_MAX )
         {
             disconnectClientAndRecord( cit, false );
+            cit++;
             continue;
         }
 
         if( cit->status != Client::ST_READY )
+        {
+            cit++;
             continue;
+        }
 
         if(
             freeClient != clients_.end() &&
@@ -200,10 +203,12 @@ void Server::timerEvent( QTimerEvent* event )
         {
             connectTwoClients( freeClient, cit );
             freeClient = clients_.end();
+            cit++;
             continue;
         }
 
         freeClient = cit;
+        cit++;
     }
 }
 
