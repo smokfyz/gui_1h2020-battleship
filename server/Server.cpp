@@ -166,7 +166,7 @@ void Server::timerEvent( QTimerEvent* event )
     Q_UNUSED( event );
     ClientsIterator freeClient = clients_.end();
 
-    for( ClientsIterator cit = clients_.begin(); cit != clients_.end() && clients_.size(); cit++ )
+    for( ClientsIterator cit = clients_.begin(); cit != clients_.end(); cit++ )
     {
         // Remove disconnected clients from list
         if( cit->status == Client::ST_DISCONNECTED )
