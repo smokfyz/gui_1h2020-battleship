@@ -14,7 +14,8 @@ Server::Server( QObject* parent ):
     address_( DEFAULT_SERVER_ADDRESS ),
     port_( DEFAULT_SERVER_PORT ),
     authFile_( DEFAULT_AUTH_FILE ),
-    statFile_( DEFAULT_STAT_FILE )
+    statFile_( DEFAULT_STAT_FILE ),
+    useDb_( false )
 {
     connect(
         tcpServer_,
@@ -138,6 +139,26 @@ const QString& Server::statFile() const
     return statFile_;
 }
 
+void Server::configureDb()
+{
+    const QString DRIVER("QSQLITE");
+
+    if(QSqlDatabase::isDriverAvailable(DRIVER))
+    {
+        db_ = QSqlDatabase::addDatabase(DRIVER);
+        db_.setDatabaseName(":memory:");
+        if(!db_.open())
+            qWarning() << "ERROR: " << db_.lastError();
+    }
+
+    useDb_ = true;
+}
+
+const QSqlDatabase& Server::db()
+{
+    return db_;
+}
+
 // Searching for free clients and connecting them
 // Also removing inactive clients
 void Server::timerEvent( QTimerEvent* event )
@@ -154,6 +175,7 @@ void Server::timerEvent( QTimerEvent* event )
                 freeClient = clients_.end();
 
             cit = clients_.erase( cit );
+            cit--;
             continue;
         }
 
@@ -520,6 +542,25 @@ Server::CheckUserStatus Server::checkUserLogin(
     if( guestAllowed_ && login == DEFAULT_GUEST_ACCOUNT )
         return CUS_OK;
 
+    if( useDb_ )
+    {
+        QSqlQuery query;
+        query.prepare("SELECT login, password FROM users WHERE login = ? AND password = ?");
+        query.addBindValue(login);
+        query.addBindValue(password);
+
+        if(!query.exec())
+        {
+            qWarning() << "ERROR: " << query.lastError().text();
+            return CUS_NOTFOUND;
+        }
+
+        if(query.first())
+            return CUS_OK;
+        else
+            return CUS_NOTFOUND;
+    }
+
     if( !QFile::exists(authFile_) )
     {
         qWarning() << "WARNING: Auth file not exists";
@@ -566,6 +607,30 @@ Server::CheckUserStatus Server::checkUserLogin(
 bool Server::registerUserLogin( const QString& login, const QString& password )
 {
     QFile af( authFile_ );
+
+    if( useDb_ )
+    {
+        QSqlQuery query("CREATE TABLE IF NOT EXISTS users (login TEXT PRIMARY KEY, password TEXT)");
+
+        if(!query.isActive())
+        {
+            qWarning() << "ERROR: " << query.lastError().text();
+            return false;
+        }
+
+        query.prepare("INSERT INTO users(login, password) VALUES(?, ?)");
+        query.addBindValue(login);
+        query.addBindValue(password);
+
+        if(!query.exec())
+        {
+            qWarning() << "ERROR: " << query.lastError().text();
+            return false;
+        }
+
+        return true;
+    }
+
     if( !af.open(QFile::Append) )
     {
         qDebug() << "Unable to open auth file";

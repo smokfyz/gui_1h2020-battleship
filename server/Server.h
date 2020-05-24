@@ -3,6 +3,10 @@
 #include <QObject>
 #include <QHostAddress>
 #include <QtNetwork/QTcpServer>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlDriver>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 #include "Constants.h"
 #include "Client.h"
 #include "Statistics.h"
@@ -48,6 +52,8 @@ public:
     const QString& authFile() const;
     void setStatFile( const QString& filename );
     const QString& statFile() const;
+    void configureDb();
+    const QSqlDatabase& db();
 
 private slots:
     void on_newUserConnected();
@@ -92,4 +98,6 @@ private:
     QString statFile_;
     Clients clients_;
     Statistics stats_;
+    bool useDb_;
+    QSqlDatabase db_;
 };

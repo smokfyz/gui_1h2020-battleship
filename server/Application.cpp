@@ -54,6 +54,7 @@ bool Application::parseOptions( const QString& arg )
             << "(default " << DEFAULT_SERVER_PORT << ")\n"
             << "    -g, --allowguest       -- allow guest accounts\n"
             << "    -r, --disablereg       -- disallow registration\n"
+            << "    -d, --database         -- use sqlite\n"
         ;
         forceQuit_ = true;
         return true;
@@ -68,6 +69,11 @@ bool Application::parseOptions( const QString& arg )
     if( isOption(arg, "-r", "--disablereg") )
     {
         server_->setRegistrationAllowed( false );
+        return true;
+    }
+    if( isOption(arg, "-d", "--database") )
+    {
+        server_->configureDb();
         return true;
     }
 
