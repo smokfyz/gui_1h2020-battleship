@@ -11,6 +11,8 @@
 #include "logdatamodel.h"
 #include "utilities.h"
 #include "connectiondialog.h"
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 enum GameResult
 {
@@ -77,6 +79,8 @@ private:
     void markEnemyPoint(int x, int y, Cell cell);
     bool checkError(const QString&,const QString&);
     void emitError(GameErrorMessage error);
+    void playHitSound();
+    void playMissSound();
 
 private:
     QTcpSocket* client;
@@ -85,6 +89,8 @@ private:
     QHostAddress serverAddress;
     quint16 serverPort;
     bool connectionError;
+    QMediaPlayer* player;
+    QMediaPlaylist *playlist;
 };
 
 #endif // CONTROLLER_H
