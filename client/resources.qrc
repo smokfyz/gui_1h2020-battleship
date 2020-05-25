@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pictures/redhalf.png</file>
+        <file>pictures/redfull.png</file>
+        <file>pictures/half.png</file>
+        <file>pictures/full.png</file>
+        <file>pictures/dot.png</file>
+        <file>pictures/background.png</file>
+        <file>sounds/miss.mp3</file>
+        <file>sounds/hit.mp3</file>
+    </qresource>
+</RCC>
